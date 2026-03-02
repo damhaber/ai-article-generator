@@ -1,0 +1,113 @@
+{
+  "version": "1.3.1",
+  "build": "20260301-232522",
+  "features": [
+    {
+      "id": "loader",
+      "title": "Plugin loader ve sabitler",
+      "files": [
+        "ai-article-generator.php"
+      ]
+    },
+    {
+      "id": "admin_panel",
+      "title": "Admin panel UI",
+      "files": [
+        "panel.php",
+        "ui/style.css",
+        "ui/settings.php"
+      ]
+    },
+    {
+      "id": "ajax",
+      "title": "AJAX uçları",
+      "files": [
+        "ajax-handler.php"
+      ]
+    },
+    {
+      "id": "outline",
+      "title": "Outline üretimi",
+      "files": [
+        "core/ai-article-outline.php"
+      ]
+    },
+    {
+      "id": "templates",
+      "title": "Şablon sistemi",
+      "files": [
+        "core/ai-article-templates.php"
+      ]
+    },
+    {
+      "id": "queue",
+      "title": "Kuyruk",
+      "files": [
+        "core/ai-article-queue.php"
+      ]
+    },
+    {
+      "id": "post",
+      "title": "WP post oluşturma",
+      "files": [
+        "core/ai-article-post.php"
+      ]
+    },
+    {
+      "id": "media",
+      "title": "Medya",
+      "files": [
+        "core/ai-article-media.php"
+      ]
+    },
+    {
+      "id": "metrics",
+      "title": "Metrikler",
+      "files": [
+        "core/ai-article-metrics.php"
+      ]
+    },
+    {
+      "id": "logs",
+      "title": "Log sistemi",
+      "files": [
+        "core/ai-log.php",
+        "logs/ai-article-generator.log"
+      ]
+    },
+    {
+      "id": "pipeline",
+      "title": "Pipeline motoru (Outline→Sections→SEO→Schema→Quality→Save)",
+      "files": [
+        "core/ai-article-pipeline.php",
+        "core/ai-article-templates.php",
+        "core/ai-article-core.php",
+        "core/ai-article-post.php"
+      ]
+    },
+    {
+      "id": "context_engine",
+      "title": "Context Engine (brand/brief/sources)",
+      "files": [
+        "core/ai-article-context.php",
+        "ui/settings.php"
+      ]
+    },
+    {
+      "id": "quality_engine",
+      "title": "Quality Engine (deterministic scoring)",
+      "files": [
+        "core/ai-article-quality.php",
+        "core/ai-article-pipeline.php"
+      ]
+    },
+    {
+      "id": "internal_links",
+      "title": "Internal Link Engine",
+      "files": [
+        "core/ai-article-internal-links.php",
+        "core/ai-article-pipeline.php"
+      ]
+    }
+  ]
+}

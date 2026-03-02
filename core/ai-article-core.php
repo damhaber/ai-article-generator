@@ -1,0 +1,314 @@
+<?php
+/**
+ * AI Article Generator — Core Engine
+
+ * - Rate limit + cache + log entegrasyonu
+ * - Fatal üretmez, her zaman array döndürür
+ */
+
+if (!defined('ABSPATH')) { exit; }
+
+if (!defined('AI_ARTICLE_PATH')) {
+    define('AI_ARTICLE_PATH', wp_normalize_path(dirname(__DIR__, 1)));
+}
+if (!defined('AI_ARTICLE_LOG')) {
+    // Article generator için ayrı log; yoksa SEO Log’a düşer.
+    define('AI_ARTICLE_LOG', wp_normalize_path(AI_ARTICLE_PATH . '/logs/ai-article-generator.log'));
+}
+
+/* ------------------------------------------------------------
+ * Yardımcı: güvenli log
+ * ------------------------------------------------------------ */
+if (!function_exists('ai_article_log')) {
+    function ai_article_log(string $op, $data = null, string $level = 'info'): void {
+        $row = [
+            'ts'    => gmdate('c'),
+            'level' => $level,
+            'op'    => $op,
+        ];
+        if ($data !== null) $row['data'] = $data;
+
+        $line = json_encode($row, JSON_UNESCAPED_UNICODE);
+        $file = AI_ARTICLE_LOG;
+
+        // Fallback: AISEO_LOG_FILE varsa oraya da yaz
+        $targets = [$file];
+        if (defined('AISEO_LOG_FILE')) $targets[] = AISEO_LOG_FILE;
+
+        foreach (array_unique(array_filter($targets)) as $t) {
+            if (!$t) continue;
+            $dir = dirname($t);
+            if (!is_dir($dir)) @wp_mkdir_p($dir);
+            if (@is_writable($dir)) {
+                @file_put_contents($t, $line . PHP_EOL, FILE_APPEND | LOCK_EX);
+            }
+        }
+    }
+}
+
+/* ------------------------------------------------------------
+ * Rate limit + cache yardımcıları (varsa çekirdekten kullanır)
+ * ------------------------------------------------------------ */
+if (!function_exists('ai_article_rate_allow')) {
+    function ai_article_safe_retry(callable $fn, int $tries = 2, int $waitMs = 400) {
+    $last = null;
+    for ($i=0;$i<max(1,$tries);$i++) {
+        try { return $fn(); } catch (Throwable $e) { $last = $e; usleep($waitMs*1000); }
+    }
+    if ($last) throw $last; return null;
+}
+function ai_article_rate_allow(string $bucket = 'generate', int $limit = 10, int $window = 60): bool {
+        // Eğer kendi rate-limit çekirdeğin varsa onu kullan:
+        if (function_exists('ai_seo_rate_allow')) {
+            return (bool) ai_seo_rate_allow('ai-article:' . $bucket, $limit, $window);
+        }
+        // Basit transient tabanlı fallback
+        $key = 'ai_article_rl_' . $bucket;
+        $now = time();
+        $arr = get_transient($key);
+        if (!is_array($arr)) $arr = [];
+        $arr = array_filter($arr, fn($ts) => ($now - (int)$ts) < $window);
+        if (count($arr) >= $limit) return false;
+        $arr[] = $now;
+        set_transient($key, $arr, $window);
+        return true;
+    }
+}
+
+if (!function_exists('ai_article_cache_remember')) {
+    /**
+     * Cache helper: mevcutsa döner, yoksa closure çalıştırır ve yazar
+     */
+    function ai_article_cache_remember(array $key, int $ttl, callable $producer) {
+        if (function_exists('ai_seo_cache_remember')) {
+            // Ortak cache’i tercih et
+            return ai_seo_cache_remember(['ai-article' => $key], $ttl, $producer);
+        }
+        // Basit transient fallback
+        $k = 'ai_article_c_' . md5(json_encode($key));
+        $v = get_transient($k);
+        if ($v !== false) return $v;
+        $v = $producer();
+        set_transient($k, $v, $ttl);
+        return $v;
+    }
+}
+
+/* ------------------------------------------------------------
+ * LLM Çağrısı 
+ * ------------------------------------------------------------ */
+if (!function_exists('ai_article_call_llm')) {
+    /**
+     * LLM üretimi — mevcut LLM köprünüze delegasyon
+     * @return array{ok:bool, html:string, model?:string, usage?:array, error?:string}
+     */
+    
+function ai_article_provider(): string {
+    $opt = get_option('ai_article_provider', 'auto');
+    $v = is_string($opt) ? strtolower($opt) : 'auto';
+    return in_array($v, ['auto','gpt','gemini','claude'], true) ? $v : 'auto';
+}
+function ai_article_call_llm(array $args): array {
+        $prompt = (string)($args['prompt'] ?? '');
+        $tone   = (string)($args['tone'] ?? 'neutral');
+        $lang   = (string)($args['lang'] ?? 'tr');
+        $model  = (string)($args['model'] ?? 'auto');
+
+        if ($prompt === '') {
+            return ['ok' => false, 'html' => '', 'error' => 'Boş prompt'];
+        }
+
+        try {
+            /**
+             * LLM Köprüsü (Provider-agnostic)
+             *
+             * 1) 'ai_article/llm_generate' filtresi döndürür:
+             *    ['html'=>string, 'model'=>string, 'usage'=>['prompt_tokens'=>..,'completion_tokens'=>..,'total_tokens'=>..,'cost_usd'=>..]]
+             *
+             * 2) Hiç provider yoksa DEMO fallback döner (stabilite için).
+             */
+            $result = apply_filters('ai_article/llm_generate', null, [
+                'prompt' => $prompt,
+                'tone'   => $tone,
+                'lang'   => $lang,
+                'model'  => $model,
+                'format' => 'html',
+            ]);
+
+            if (is_array($result) && !empty($result['html'])) {
+                return [
+                    'ok'    => true,
+                    'html'  => (string)$result['html'],
+                    'model' => (string)($result['model'] ?? $model),
+                    'usage' => (array)($result['usage'] ?? []),
+                ];
+            }
+
+            // Demo fallback: minimal HTML (provider yoksa bile sistem kırılmaz)
+            $demo = '<h2>' . esc_html(wp_trim_words($prompt, 10, '…')) . '</h2>'
+                  . '<p><em>Demo üretim:</em> LLM sağlayıcısı tanımlı değil. '
+                  . 'Panelden sağlayıcı entegrasyonu ekleyin veya ai_article/llm_generate filtresini kullanın.</p>';
+
+            return ['ok' => true, 'html' => $demo, 'model' => 'demo-fallback', 'usage' => []];
+
+        } catch (Throwable $e) {
+            return ['ok' => false, 'html' => '', 'error' => $e->getMessage()];
+        }
+    }
+}
+
+/* ------------------------------------------------------------
+ * Ana: Makale üret (rate limit + cache + log)
+ * ------------------------------------------------------------ */
+if (!function_exists('ai_article_generate')) {
+    /**
+     * @param array $args {prompt, tone, lang, category_id, tags[], model}
+     * @return array{ok:bool, content:string, meta:array, error?:string}
+     */
+    function ai_article_generate(array $args): array {
+        $prompt = (string)($args['prompt'] ?? '');
+        $tone   = (string)($args['tone'] ?? 'neutral');
+        $lang   = (string)($args['lang'] ?? 'tr');
+        $model  = (string)($args['model'] ?? 'auto');
+
+        if ($prompt === '') {
+            return ['ok' => false, 'content' => '', 'meta' => [], 'error' => 'Boş prompt'];
+        }
+
+        if (!ai_article_rate_allow('generate', 10, 60)) {
+            ai_article_log('rate_limit_block', ['prompt' => $prompt], 'warn');
+            return ['ok' => false, 'content' => '', 'meta' => [], 'error' => 'Limit aşıldı'];
+        }
+
+        $cacheKey = [
+            'v'      => 1,
+            'prompt' => substr(md5($prompt), 0, 16),
+            'tone'   => $tone,
+            'lang'   => $lang,
+            'model'  => $model,
+        ];
+
+        $resp = ai_article_cache_remember($cacheKey, 120, function () use ($args) {
+            return ai_article_call_llm($args);
+        });
+
+        if (!is_array($resp) || empty($resp['ok'])) {
+            $err = is_array($resp) ? ($resp['error'] ?? 'LLM hata') : 'LLM bilinmeyen hata';
+            ai_article_log('generate_fail', ['error' => $err], 'error');
+            return ['ok' => false, 'content' => '', 'meta' => [], 'error' => $err];
+        }
+
+        $html  = (string)$resp['html'];
+        $meta  = [
+            'ai_source'      => (string)($resp['model'] ?? $model),
+            'ai_prompt'      => $prompt,
+            'ai_output_hash' => md5($html),
+            'ai_lang'        => $lang,
+            'usage'          => (array)($resp['usage'] ?? []),
+        ];
+
+        // Token/Cost Monitor (V4)
+        if (!defined('AIG_OPT_USAGE')) define('AIG_OPT_USAGE', 'ai_article_generator_usage_totals');
+        $u = (array)($meta['usage'] ?? []);
+        $tot = get_option(AIG_OPT_USAGE, []);
+        if (!is_array($tot)) $tot = [];
+        $tot['calls'] = isset($tot['calls']) ? ((int)$tot['calls'] + 1) : 1;
+        $tot['prompt_tokens'] = (int)($tot['prompt_tokens'] ?? 0) + (int)($u['prompt_tokens'] ?? 0);
+        $tot['completion_tokens'] = (int)($tot['completion_tokens'] ?? 0) + (int)($u['completion_tokens'] ?? 0);
+        $tot['total_tokens'] = (int)($tot['total_tokens'] ?? 0) + (int)($u['total_tokens'] ?? 0);
+        $tot['cost_usd'] = (float)($tot['cost_usd'] ?? 0) + (float)($u['cost_usd'] ?? 0);
+        $tot['last_at'] = current_time('mysql');
+        update_option(AIG_OPT_USAGE, $tot, false);
+
+        ai_article_log('generate_ok', ['model' => $meta['ai_source'], 'hash' => $meta['ai_output_hash']]);
+
+        return ['ok' => true, 'content' => $html, 'meta' => $meta];
+    }
+}
+
+
+function ai_article_sanitize_html_safeplus(string $html): string {
+    // Minimal XSS hardening for admin preview / draft save.
+    $html = preg_replace('#<script\b[^>]*>.*?</script>#is', '', $html);
+    $html = preg_replace('#<iframe\b[^>]*>.*?</iframe>#is', '', $html);
+    $html = preg_replace('#on\w+\s*=\s*([\'\"]).*?\1#is', '', $html);
+    return (string)$html;
+}
+
+/* ------------------------------------------------------------
+ * Similarity Guard (V4)
+ * - hızlı shingle hash + Jaccard
+ * - son N çıktıyı option içinde tutar (db)
+ * ------------------------------------------------------------ */
+if (!defined('AIG_OPT_SIM_INDEX')) define('AIG_OPT_SIM_INDEX', 'ai_article_generator_similarity_index');
+
+if (!function_exists('aig_similarity_shingles')) {
+    function aig_similarity_shingles(string $text, int $k = 7, int $max = 800): array {
+        $t = mb_strtolower(wp_strip_all_tags($text));
+        $t = preg_replace('/\s+/u', ' ', trim($t));
+        if ($t === '') return [];
+        // karakter tabanlı shingles (dil bağımsız)
+        $len = mb_strlen($t);
+        $set = [];
+        for ($i=0; $i<=($len-$k); $i++) {
+            $sh = mb_substr($t, $i, $k);
+            $h  = substr(sha1($sh), 0, 12);
+            $set[$h] = 1;
+            if (count($set) >= $max) break;
+        }
+        return array_keys($set);
+    }
+}
+
+if (!function_exists('aig_similarity_jaccard')) {
+    function aig_similarity_jaccard(array $a, array $b): float {
+        if (!$a || !$b) return 0.0;
+        $setA = array_fill_keys($a, 1);
+        $inter = 0;
+        foreach ($b as $h) {
+            if (isset($setA[$h])) $inter++;
+        }
+        $union = count($a) + count($b) - $inter;
+        return $union > 0 ? ($inter / $union) : 0.0;
+    }
+}
+
+if (!function_exists('aig_similarity_check_and_store')) {
+    /**
+     * @return array{ok:bool, best:float, hit?:array, index_size:int}
+     */
+    function aig_similarity_check_and_store(string $text, float $threshold = 0.80, int $keep = 120): array {
+        $sh = aig_similarity_shingles($text);
+        $index = get_option(AIG_OPT_SIM_INDEX, []);
+        if (!is_array($index)) $index = [];
+
+        $best = 0.0;
+        $best_hit = null;
+
+        foreach ($index as $row) {
+            if (!is_array($row) || empty($row['sh'])) continue;
+            $score = aig_similarity_jaccard($sh, (array)$row['sh']);
+            if ($score > $best) { $best = $score; $best_hit = $row; }
+        }
+
+        // store current
+        $index[] = [
+            'ts' => time(),
+            'sh' => $sh,
+            'meta' => [
+                'hash' => substr(sha1($text), 0, 16),
+            ],
+        ];
+        // trim
+        if (count($index) > $keep) $index = array_slice($index, -$keep);
+        update_option(AIG_OPT_SIM_INDEX, $index, false);
+
+        return [
+            'ok' => ($best < $threshold),
+            'best' => $best,
+            'hit' => $best_hit,
+            'index_size' => count($index),
+        ];
+    }
+}
+
