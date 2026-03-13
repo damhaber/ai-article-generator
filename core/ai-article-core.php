@@ -1,7 +1,7 @@
 <?php
 /**
  * AI Article Generator — Core Engine
-
+ *
  * - Rate limit + cache + log entegrasyonu
  * - Fatal üretmez, her zaman array döndürür
  */
@@ -47,68 +47,259 @@ if (!function_exists('ai_article_log')) {
 }
 
 /* ------------------------------------------------------------
- * Rate limit + cache yardımcıları (varsa çekirdekten kullanır)
+ * Rate limit yardımcıları
+ * - Bu modül artık gizli ortak limiter’a bağımlı değildir.
+ * - Admin/manage_options kullanıcıları varsayılan olarak bypass edilir.
+ * - Public çağrılar için kullanıcı/IP bazlı sayaç tutulur.
  * ------------------------------------------------------------ */
-if (!function_exists('ai_article_rate_allow')) {
+if (!function_exists('ai_article_safe_retry')) {
     function ai_article_safe_retry(callable $fn, int $tries = 2, int $waitMs = 400) {
-    $last = null;
-    for ($i=0;$i<max(1,$tries);$i++) {
-        try { return $fn(); } catch (Throwable $e) { $last = $e; usleep($waitMs*1000); }
-    }
-    if ($last) throw $last; return null;
-}
-function ai_article_rate_allow(string $bucket = 'generate', int $limit = 10, int $window = 60): bool {
-        // Eğer kendi rate-limit çekirdeğin varsa onu kullan:
-        if (function_exists('ai_seo_rate_allow')) {
-            return (bool) ai_seo_rate_allow('ai-article:' . $bucket, $limit, $window);
+        $last = null;
+        for ($i = 0; $i < max(1, $tries); $i++) {
+            try {
+                return $fn();
+            } catch (Throwable $e) {
+                $last = $e;
+                usleep($waitMs * 1000);
+            }
         }
-        // Basit transient tabanlı fallback
-        $key = 'ai_article_rl_' . $bucket;
+        if ($last) throw $last;
+        return null;
+    }
+}
+
+if (!function_exists('ai_article_rate_limit_defaults')) {
+    function ai_article_rate_limit_defaults(): array {
+        return [
+            'enabled' => true,
+            'bypass_manage_options' => true,
+            'identity_mode' => 'user_or_ip', // user_or_ip|shared|ip
+            'buckets' => [
+                'generate' => [
+                    'limit' => 10,
+                    'window' => 60,
+                ],
+            ],
+        ];
+    }
+}
+
+if (!function_exists('ai_article_rate_limit_settings')) {
+    function ai_article_rate_limit_settings(): array {
+        $defaults = ai_article_rate_limit_defaults();
+        $settings = function_exists('aig_settings_read') ? aig_settings_read() : [];
+        $rate = isset($settings['rate_limit']) && is_array($settings['rate_limit']) ? $settings['rate_limit'] : [];
+        $rate = array_replace_recursive($defaults, $rate);
+        if (empty($rate['buckets']) || !is_array($rate['buckets'])) {
+            $rate['buckets'] = $defaults['buckets'];
+        }
+        return $rate;
+    }
+}
+
+if (!function_exists('ai_article_rate_limit_identity')) {
+    function ai_article_rate_limit_identity(string $bucket = 'generate'): string {
+        $rate = ai_article_rate_limit_settings();
+        $mode = (string)($rate['identity_mode'] ?? 'user_or_ip');
+
+        if ($mode === 'shared') {
+            return 'shared';
+        }
+
+        $uid = get_current_user_id();
+        if ($uid > 0 && $mode === 'user_or_ip') {
+            return 'user:' . $uid;
+        }
+
+        $candidates = [
+            $_SERVER['HTTP_CF_CONNECTING_IP'] ?? null,
+            $_SERVER['HTTP_X_REAL_IP'] ?? null,
+            $_SERVER['REMOTE_ADDR'] ?? null,
+        ];
+        $ip = '';
+        foreach ($candidates as $candidate) {
+            $candidate = is_string($candidate) ? trim($candidate) : '';
+            if ($candidate !== '') {
+                $ip = $candidate;
+                break;
+            }
+        }
+        if ($ip === '') {
+            $ip = 'unknown';
+        }
+
+        return 'ip:' . md5($ip . '|' . $bucket);
+    }
+}
+
+if (!function_exists('ai_article_rate_limit_check')) {
+    function ai_article_rate_limit_check(string $bucket = 'generate', ?int $limit = null, ?int $window = null): array {
+        $rate = ai_article_rate_limit_settings();
+        $bucketCfg = isset($rate['buckets'][$bucket]) && is_array($rate['buckets'][$bucket]) ? $rate['buckets'][$bucket] : [];
+        $limit = max(0, (int)($limit ?? $bucketCfg['limit'] ?? 10));
+        $window = max(1, (int)($window ?? $bucketCfg['window'] ?? 60));
+
+        if (empty($rate['enabled'])) {
+            return [
+                'ok' => true,
+                'allowed' => true,
+                'bucket' => $bucket,
+                'limit' => $limit,
+                'window' => $window,
+                'remaining' => $limit,
+                'retry_after' => 0,
+                'reset_after' => 0,
+                'bypassed' => true,
+                'reason' => 'disabled',
+            ];
+        }
+
+        if (!empty($rate['bypass_manage_options']) && current_user_can('manage_options')) {
+            return [
+                'ok' => true,
+                'allowed' => true,
+                'bucket' => $bucket,
+                'limit' => $limit,
+                'window' => $window,
+                'remaining' => $limit,
+                'retry_after' => 0,
+                'reset_after' => 0,
+                'bypassed' => true,
+                'reason' => 'manage_options',
+            ];
+        }
+
+        if ($limit === 0) {
+            return [
+                'ok' => true,
+                'allowed' => true,
+                'bucket' => $bucket,
+                'limit' => 0,
+                'window' => $window,
+                'remaining' => 0,
+                'retry_after' => 0,
+                'reset_after' => 0,
+                'bypassed' => true,
+                'reason' => 'unlimited',
+            ];
+        }
+
+        $identity = ai_article_rate_limit_identity($bucket);
+        $key = 'ai_article_rl_' . md5($bucket . '|' . $identity . '|' . $window . '|' . $limit);
         $now = time();
         $arr = get_transient($key);
-        if (!is_array($arr)) $arr = [];
-        $arr = array_filter($arr, fn($ts) => ($now - (int)$ts) < $window);
-        if (count($arr) >= $limit) return false;
+        if (!is_array($arr)) {
+            $arr = [];
+        }
+
+        $arr = array_values(array_filter($arr, static function ($ts) use ($now, $window) {
+            return ($now - (int)$ts) < $window;
+        }));
+
+        $count = count($arr);
+        if ($count >= $limit) {
+            $oldest = (int)min($arr);
+            $retryAfter = max(1, $window - max(0, $now - $oldest));
+            set_transient($key, $arr, $window);
+
+            return [
+                'ok' => false,
+                'allowed' => false,
+                'bucket' => $bucket,
+                'identity' => $identity,
+                'limit' => $limit,
+                'window' => $window,
+                'used' => $count,
+                'remaining' => 0,
+                'retry_after' => $retryAfter,
+                'reset_after' => $retryAfter,
+                'bypassed' => false,
+                'reason' => 'rate_limited',
+                'key' => $key,
+            ];
+        }
+
         $arr[] = $now;
         set_transient($key, $arr, $window);
-        return true;
+        $used = count($arr);
+
+        return [
+            'ok' => true,
+            'allowed' => true,
+            'bucket' => $bucket,
+            'identity' => $identity,
+            'limit' => $limit,
+            'window' => $window,
+            'used' => $used,
+            'remaining' => max(0, $limit - $used),
+            'retry_after' => 0,
+            'reset_after' => $window,
+            'bypassed' => false,
+            'reason' => 'allowed',
+            'key' => $key,
+        ];
+    }
+}
+
+if (!function_exists('ai_article_rate_allow')) {
+    function ai_article_rate_allow(string $bucket = 'generate', int $limit = 10, int $window = 60): bool {
+        $check = ai_article_rate_limit_check($bucket, $limit, $window);
+        return !empty($check['allowed']);
+    }
+}
+
+if (!function_exists('ai_article_format_rate_limit_error')) {
+    function ai_article_format_rate_limit_error(array $check): string {
+        $limit = (int)($check['limit'] ?? 0);
+        $window = (int)($check['window'] ?? 0);
+        $remaining = (int)($check['remaining'] ?? 0);
+        $retryAfter = (int)($check['retry_after'] ?? 0);
+        return sprintf(
+            'Rate limit: %d request / %ds • Remaining: %d • Retry after: %ds',
+            $limit,
+            $window,
+            $remaining,
+            $retryAfter
+        );
     }
 }
 
 if (!function_exists('ai_article_cache_remember')) {
     /**
-     * Cache helper: mevcutsa döner, yoksa closure çalıştırır ve yazar
+     * Cache helper: mevcutsa döner, yoksa closure çalıştırır ve yazar.
+     * Hatalı LLM sonuçlarını cache'e yazmaz.
      */
     function ai_article_cache_remember(array $key, int $ttl, callable $producer) {
-        if (function_exists('ai_seo_cache_remember')) {
-            // Ortak cache’i tercih et
-            return ai_seo_cache_remember(['ai-article' => $key], $ttl, $producer);
-        }
-        // Basit transient fallback
-        $k = 'ai_article_c_' . md5(json_encode($key));
+        // Ortak helper varsa ve başarısız sonuçları cache'e basma kontrolü yapılamıyorsa,
+        // bu modül için local transient yolunu kullan.
+        $k = 'ai_article_c_' . md5(wp_json_encode($key, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $v = get_transient($k);
-        if ($v !== false) return $v;
+        if ($v !== false) {
+            return $v;
+        }
         $v = $producer();
-        set_transient($k, $v, $ttl);
+        if (is_array($v) && !empty($v['ok'])) {
+            set_transient($k, $v, $ttl);
+        }
         return $v;
     }
 }
 
 /* ------------------------------------------------------------
- * LLM Çağrısı 
+ * LLM Çağrısı
  * ------------------------------------------------------------ */
 if (!function_exists('ai_article_call_llm')) {
     /**
      * LLM üretimi — mevcut LLM köprünüze delegasyon
      * @return array{ok:bool, html:string, model?:string, usage?:array, error?:string}
      */
-    
-function ai_article_provider(): string {
-    $opt = get_option('ai_article_provider', 'auto');
-    $v = is_string($opt) ? strtolower($opt) : 'auto';
-    return in_array($v, ['auto','gpt','gemini','claude'], true) ? $v : 'auto';
-}
-function ai_article_call_llm(array $args): array {
+    function ai_article_provider(): string {
+        $opt = get_option('ai_article_provider', 'auto');
+        $v = is_string($opt) ? strtolower($opt) : 'auto';
+        return in_array($v, ['auto','gpt','gemini','claude'], true) ? $v : 'auto';
+    }
+
+    function ai_article_call_llm(array $args): array {
         $prompt = (string)($args['prompt'] ?? '');
         $tone   = (string)($args['tone'] ?? 'neutral');
         $lang   = (string)($args['lang'] ?? 'tr');
@@ -127,26 +318,53 @@ function ai_article_call_llm(array $args): array {
              *
              * 2) Hiç provider yoksa DEMO fallback döner (stabilite için).
              */
-            $result = apply_filters('ai_article/llm_generate', null, [
+            $llm_args = [
                 'prompt' => $prompt,
                 'tone'   => $tone,
                 'lang'   => $lang,
                 'model'  => $model,
                 'format' => 'html',
-            ]);
+                'task_type' => 'article_generation',
+            ];
 
-            if (is_array($result) && !empty($result['html'])) {
+            if (function_exists('aig_llm_generate')) {
+                $result = aig_llm_generate($prompt, $llm_args);
+            } else {
+                $result = apply_filters('ai_article/llm_generate', $prompt, $llm_args);
+            }
+
+            // Provider hata döndürdüyse demo fallback yerine gerçek hata üret (pipeline/parsing bozulmasın)
+            if (is_array($result) && !empty($result['error'])) {
                 return [
-                    'ok'    => true,
-                    'html'  => (string)$result['html'],
-                    'model' => (string)($result['model'] ?? $model),
-                    'usage' => (array)($result['usage'] ?? []),
+                    'ok'    => false,
+                    'html'  => '',
+                    'error' => (string)$result['error'],
+                    'detail'=> $result['detail'] ?? null,
                 ];
             }
 
+            if (is_array($result)) {
+                $html = '';
+                if (!empty($result['html']) && is_string($result['html'])) {
+                    $html = (string)$result['html'];
+                } elseif (!empty($result['content']) && is_string($result['content'])) {
+                    $html = (string)$result['content'];
+                } elseif (!empty($result['text']) && is_string($result['text'])) {
+                    $html = (string)$result['text'];
+                }
+
+                if ($html !== '') {
+                    return [
+                        'ok'    => true,
+                        'html'  => $html,
+                        'model' => (string)($result['model'] ?? $result['provider'] ?? $model),
+                        'usage' => (array)($result['usage'] ?? []),
+                    ];
+                }
+            }
+
             // Demo fallback: minimal HTML (provider yoksa bile sistem kırılmaz)
-            $demo = '<h2>' . esc_html(wp_trim_words($prompt, 10, '…')) . '</h2>'
-                  . '<p><em>Demo üretim:</em> LLM sağlayıcısı tanımlı değil. '
+            $demo = '<p><em>Demo üretim:</em> LLM sağlayıcısı tanımlı değil. '
                   . 'Panelden sağlayıcı entegrasyonu ekleyin veya ai_article/llm_generate filtresini kullanın.</p>';
 
             return ['ok' => true, 'html' => $demo, 'model' => 'demo-fallback', 'usage' => []];
@@ -175,13 +393,27 @@ if (!function_exists('ai_article_generate')) {
             return ['ok' => false, 'content' => '', 'meta' => [], 'error' => 'Boş prompt'];
         }
 
-        if (!ai_article_rate_allow('generate', 10, 60)) {
-            ai_article_log('rate_limit_block', ['prompt' => $prompt], 'warn');
-            return ['ok' => false, 'content' => '', 'meta' => [], 'error' => 'Limit aşıldı'];
+        $rateCheck = ai_article_rate_limit_check('generate');
+        if (empty($rateCheck['allowed'])) {
+            $message = ai_article_format_rate_limit_error($rateCheck);
+            ai_article_log('rate_limit_block', [
+                'bucket' => $rateCheck['bucket'] ?? 'generate',
+                'identity' => $rateCheck['identity'] ?? null,
+                'limit' => $rateCheck['limit'] ?? null,
+                'window' => $rateCheck['window'] ?? null,
+                'retry_after' => $rateCheck['retry_after'] ?? null,
+            ], 'warn');
+            return [
+                'ok' => false,
+                'content' => '',
+                'meta' => ['rate_limit' => $rateCheck],
+                'error' => $message,
+                'error_code' => 'rate_limited',
+            ];
         }
 
         $cacheKey = [
-            'v'      => 1,
+            'v'      => 5,
             'prompt' => substr(md5($prompt), 0, 16),
             'tone'   => $tone,
             'lang'   => $lang,
@@ -205,6 +437,7 @@ if (!function_exists('ai_article_generate')) {
             'ai_output_hash' => md5($html),
             'ai_lang'        => $lang,
             'usage'          => (array)($resp['usage'] ?? []),
+            'rate_limit'     => $rateCheck,
         ];
 
         // Token/Cost Monitor (V4)

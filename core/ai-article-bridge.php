@@ -8,15 +8,31 @@
 if (!defined('ABSPATH')) { exit; }
 
 /**
+ * Nonce compat: accept _ajax_nonce / nonce / security and never wp_die(-1) (403).
+ */
+if (!function_exists('aig_bridge_get_nonce')) {
+    function aig_bridge_get_nonce(): string {
+        return (string)($_POST['_ajax_nonce'] ?? $_POST['nonce'] ?? $_POST['security'] ?? '');
+    }
+    function aig_bridge_verify_nonce(string $action = 'ai_article_nonce'): bool {
+        $n = aig_bridge_get_nonce();
+        return $n !== '' && wp_verify_nonce($n, $action);
+    }
+    function aig_bridge_json_error(string $code): void {
+        wp_send_json_success(['ok'=>false,'content'=>'','meta'=>[],'error'=>$code]);
+    }
+}
+
+
+/**
  * AJAX: Single prompt generation (HTML)
  * Expects: prompt, tone, lang, model
  */
 if (!has_action('wp_ajax_ai_article_generate')) {
     add_action('wp_ajax_ai_article_generate', function () {
-        if (!current_user_can('edit_posts')) wp_die('⛔');
-        check_ajax_referer('ai_article_nonce','_ajax_nonce');
-
-        $args = [
+        if (!current_user_can('edit_posts')) { aig_bridge_json_error('no_permission'); }
+        if (!aig_bridge_verify_nonce('ai_article_nonce')) { aig_bridge_json_error('nonce_failed'); }
+$args = [
             'prompt' => wp_unslash($_POST['prompt'] ?? ''),
             'tone'   => sanitize_text_field($_POST['tone'] ?? 'neutral'),
             'lang'   => sanitize_text_field($_POST['lang'] ?? 'tr'),
@@ -38,10 +54,9 @@ if (!has_action('wp_ajax_ai_article_generate')) {
  */
 if (!has_action('wp_ajax_ai_article_rewrite')) {
     add_action('wp_ajax_ai_article_rewrite', function () {
-        if (!current_user_can('edit_posts')) wp_die('⛔');
-        check_ajax_referer('ai_article_nonce','_ajax_nonce');
-
-        $text = (string)wp_unslash($_POST['text'] ?? '');
+        if (!current_user_can('edit_posts')) { aig_bridge_json_error('no_permission'); }
+        if (!aig_bridge_verify_nonce('ai_article_nonce')) { aig_bridge_json_error('nonce_failed'); }
+$text = (string)wp_unslash($_POST['text'] ?? '');
         $instruction = sanitize_text_field($_POST['instruction'] ?? 'rewrite');
 
         $tone   = sanitize_text_field($_POST['tone'] ?? 'neutral');

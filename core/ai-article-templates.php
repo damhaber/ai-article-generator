@@ -9,8 +9,8 @@ if (!function_exists('ai_article_templates')) {
         return [
             'news_basic' => [
                 'title'=>'Haber (Kısa)',
-                'system'=>'Tarafsız, net. Türkçe. HTML <p>, <h2>, <ul>. Başlık ver.',
-                'user'=>'Konu: {{topic}}. Kaynaklar: {{sources}}. Zaman: {{date}}. 300-450 kelime.',
+                'system'=>'Tarafsız, net ve editoryal bir üslup kullan. Türkçe yaz. HTML olarak yalnızca <p>, <ul>, <li>, <strong> kullan. İstenmedikçe başlık tekrar etme.',
+                'user'=>'Konu: {{topic}}. Anahtar kelime: {{keyword}}. Tarih: {{date}}. Sadece istenen bölümü yaz; placeholder, şablon etiketi veya {{sources}} bırakma. 220-420 kelime.',
             ],
             'blog_opinion' => [
                 'title'=>'Blog (Görüş)',

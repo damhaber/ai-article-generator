@@ -193,9 +193,8 @@ if (!function_exists('ai_article_save_post')) {
 if (!has_action('wp_ajax_ai_article_save_post')) {
     add_action('wp_ajax_ai_article_save_post', function () {
         if (!current_user_can('edit_posts')) wp_die('⛔');
-        check_ajax_referer('ai_article_nonce', '_ajax_nonce');
-
-        $payload = [
+        if (!aig_post_verify_nonce('ai_article_nonce')) { return ['ok'=>false,'error'=>'nonce_failed']; }
+$payload = [
             'post_id'     => (int)($_POST['post_id'] ?? 0),
             'title'       => wp_unslash($_POST['title'] ?? ''),
             'content'     => wp_unslash($_POST['content'] ?? ''),
