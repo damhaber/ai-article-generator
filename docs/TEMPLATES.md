@@ -1,18 +1,21 @@
-# TEMPLATES — Şablonlar
+# Templates
 
-Şablonlar prompt stratejisidir. Hedef: JSON tabanlı şablon deposu.
+Makale template sistemi.
 
-## Planlanan Şablonlar
-- news
-- blog
-- guide
-- analysis
-- compare
-- listicle
-- faq
+---
 
-## JSON Format (AŞAMA 3)
-- id, label
-- system_prompt
-- user_prompt
-- constraints (copyright, hallucination, tone)
+# Template Türleri
+
+news
+
+analysis
+
+guide
+
+review
+
+---
+
+# Template Dosyası
+
+ai-article-templates.php

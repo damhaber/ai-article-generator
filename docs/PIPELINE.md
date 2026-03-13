@@ -1,29 +1,74 @@
-# PIPELINE — AI Article Generator
+# Article Pipeline
 
-## Amaç
-Makale üretimi ve düzenleme sürecini “tek bir akıllı hat” haline getirmek:
-Outline → Section Expand → SEO → Schema → Quality Gate → Save/Publish
+Makale üretim zinciri.
 
-## Akış
-1. **Brief/Intent**: başlık, keyword, hedef kitle, marka tonu
-2. **Context Pack**: `ai-article-context.php`
-3. **Outline**: `ai-article-outline.php` / core ask_ai
-4. **Section Expand**: her H2 için içerik üretimi
-5. **SEO**: slug + meta description (AŞAMA 3’te TF-IDF/density genişleyecek)
-6. **Schema**: Article JSON-LD
-7. **Quality**: `ai-article-quality.php`
-8. **Internal Links**: `ai-article-internal-links.php`
-9. **Save**: `ai-article-post.php` (draft/publish)
+---
 
-## Çıktı Kontratı
-Pipeline çıktısı her zaman:
-- `title`, `keyword`
-- `sections[]`
-- `seo{slug,meta_description}`
-- `schema`
-- `internal_links[]`
-- `meta.quality`, `meta.quality_signals`
+# Pipeline
 
-## Hata Yönetimi
-- Her adım loglar: INFO/WARN/ERROR
-- admin-ajax her zaman JSON döner
+topic
+↓
+news collect
+↓
+fact pack
+↓
+context pack
+↓
+outline
+↓
+prompt
+↓
+LLM generate
+↓
+rewrite
+↓
+seo
+↓
+final article
+
+---
+
+# Context
+
+Context şu bilgileri içerir:
+
+topic  
+news sources  
+facts  
+entities  
+keywords
+
+---
+
+# Outline
+
+Makale bölümleri:
+
+- giriş
+- gelişme
+- analiz
+- sonuç
+
+---
+
+# Prompt
+
+LLM prompt:
+
+role: journalist
+
+style: analytical
+
+language: target language
+
+---
+
+# Output
+
+Pipeline çıktısı:
+
+title  
+content  
+sections  
+summary  
+sources
