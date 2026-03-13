@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "providers": {
+    "openai": {
+      "enabled": true,
+      "label": "OpenAI",
+      "base_url": "https://api.openai.com/v1",
+      "api_key": "",
+      "timeout": 45,
+      "retry": 1,
+      "notes": ""
+    },
+    "groq": {
+      "enabled": true,
+      "label": "Groq",
+      "base_url": "https://api.groq.com/openai/v1",
+      "api_key": "",
+      "timeout": 30,
+      "retry": 1,
+      "notes": ""
+    },
+    "gemini": {
+      "enabled": true,
+      "label": "Gemini",
+      "base_url": "https://generativelanguage.googleapis.com/v1beta",
+      "api_key": "",
+      "timeout": 40,
+      "retry": 1,
+      "notes": ""
+    },
+    "deepseek": {
+      "enabled": true,
+      "label": "DeepSeek",
+      "base_url": "https://api.deepseek.com/v1",
+      "api_key": "",
+      "timeout": 35,
+      "retry": 1,
+      "notes": ""
+    },
+    "mistral": {
+      "enabled": true,
+      "label": "Mistral",
+      "base_url": "https://api.mistral.ai/v1",
+      "api_key": "",
+      "timeout": 35,
+      "retry": 1,
+      "notes": ""
+    },
+    "openrouter": {
+      "enabled": true,
+      "label": "OpenRouter",
+      "base_url": "https://openrouter.ai/api/v1",
+      "api_key": "",
+      "timeout": 45,
+      "retry": 1,
+      "notes": ""
+    },
+    "ollama": {
+      "enabled": false,
+      "label": "Ollama",
+      "base_url": "http://127.0.0.1:11434/v1",
+      "api_key": "",
+      "timeout": 60,
+      "retry": 0,
+      "notes": "Local provider"
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0.0",
+  "tasks": {
+    "article_generate": {
+      "quality_profile": "quality",
+      "candidates": [
+        {
+          "provider": "openrouter",
+          "model": "anthropic/claude-sonnet"
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-4.1-mini"
+        },
+        {
+          "provider": "groq",
+          "model": "llama-3.3-70b-versatile"
+        },
+        {
+          "provider": "deepseek",
+          "model": "deepseek-chat"
+        }
+      ]
+    },
+    "article_rewrite": {
+      "quality_profile": "quality",
+      "candidates": [
+        {
+          "provider": "openai",
+          "model": "gpt-4.1-mini"
+        },
+        {
+          "provider": "openrouter",
+          "model": "anthropic/claude-sonnet"
+        },
+        {
+          "provider": "gemini",
+          "model": "gemini-1.5-pro"
+        }
+      ]
+    },
+    "seo_generate": {
+      "quality_profile": "balanced",
+      "candidates": [
+        {
+          "provider": "groq",
+          "model": "llama-3.3-70b-versatile"
+        },
+        {
+          "provider": "mistral",
+          "model": "mistral-large-latest"
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-4.1-mini"
+        }
+      ]
+    },
+    "title_generate": {
+      "quality_profile": "speed",
+      "candidates": [
+        {
+          "provider": "groq",
+          "model": "llama-3.3-70b-versatile"
+        },
+        {
+          "provider": "ollama",
+          "model": "llama3"
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-4.1-mini"
+        }
+      ]
+    },
+    "summary_generate": {
+      "quality_profile": "speed",
+      "candidates": [
+        {
+          "provider": "groq",
+          "model": "llama-3.3-70b-versatile"
+        },
+        {
+          "provider": "deepseek",
+          "model": "deepseek-chat"
+        },
+        {
+          "provider": "ollama",
+          "model": "llama3"
+        }
+      ]
+    }
+  }
+}

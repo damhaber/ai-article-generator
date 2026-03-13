@@ -1,0 +1,160 @@
+{
+  "schema_version": "1.0.0",
+  "models": {
+    "openai": {
+      "gpt-4.1-mini": {
+        "label": "GPT-4.1 Mini",
+        "enabled": true,
+        "tasks": [
+          "article_generate",
+          "article_rewrite",
+          "seo_generate",
+          "title_generate",
+          "summary_generate"
+        ],
+        "quality_score": 88,
+        "speed_score": 82,
+        "cost_score": 70,
+        "max_tokens": 2400,
+        "temperature": 0.6,
+        "supports_json": true,
+        "supports_stream": true,
+        "supports_long_context": true
+      }
+    },
+    "groq": {
+      "llama-3.3-70b-versatile": {
+        "label": "Llama 3.3 70B Versatile",
+        "enabled": true,
+        "tasks": [
+          "article_generate",
+          "article_rewrite",
+          "seo_generate",
+          "summary_generate"
+        ],
+        "quality_score": 82,
+        "speed_score": 94,
+        "cost_score": 88,
+        "max_tokens": 2200,
+        "temperature": 0.5,
+        "supports_json": false,
+        "supports_stream": true,
+        "supports_long_context": true
+      }
+    },
+    "openrouter": {
+      "openai/gpt-4.1-mini": {
+        "label": "OpenRouter → GPT-4.1 Mini",
+        "enabled": true,
+        "tasks": [
+          "article_generate",
+          "article_rewrite",
+          "seo_generate",
+          "title_generate",
+          "summary_generate"
+        ],
+        "quality_score": 87,
+        "speed_score": 78,
+        "cost_score": 72,
+        "max_tokens": 2400,
+        "temperature": 0.6,
+        "supports_json": true,
+        "supports_stream": true,
+        "supports_long_context": true
+      },
+      "anthropic/claude-sonnet": {
+        "label": "OpenRouter → Claude Sonnet",
+        "enabled": true,
+        "tasks": [
+          "article_generate",
+          "article_rewrite"
+        ],
+        "quality_score": 93,
+        "speed_score": 74,
+        "cost_score": 60,
+        "max_tokens": 2600,
+        "temperature": 0.6,
+        "supports_json": true,
+        "supports_stream": true,
+        "supports_long_context": true
+      }
+    },
+    "gemini": {
+      "gemini-1.5-pro": {
+        "label": "Gemini 1.5 Pro",
+        "enabled": true,
+        "tasks": [
+          "article_generate",
+          "article_rewrite",
+          "seo_generate",
+          "summary_generate"
+        ],
+        "quality_score": 89,
+        "speed_score": 76,
+        "cost_score": 68,
+        "max_tokens": 2400,
+        "temperature": 0.5,
+        "supports_json": true,
+        "supports_stream": false,
+        "supports_long_context": true
+      }
+    },
+    "deepseek": {
+      "deepseek-chat": {
+        "label": "DeepSeek Chat",
+        "enabled": true,
+        "tasks": [
+          "article_generate",
+          "article_rewrite",
+          "seo_generate",
+          "summary_generate"
+        ],
+        "quality_score": 84,
+        "speed_score": 80,
+        "cost_score": 90,
+        "max_tokens": 2200,
+        "temperature": 0.5,
+        "supports_json": false,
+        "supports_stream": true,
+        "supports_long_context": true
+      }
+    },
+    "mistral": {
+      "mistral-large-latest": {
+        "label": "Mistral Large Latest",
+        "enabled": true,
+        "tasks": [
+          "article_generate",
+          "article_rewrite",
+          "seo_generate"
+        ],
+        "quality_score": 85,
+        "speed_score": 79,
+        "cost_score": 76,
+        "max_tokens": 2200,
+        "temperature": 0.5,
+        "supports_json": true,
+        "supports_stream": true,
+        "supports_long_context": true
+      }
+    },
+    "ollama": {
+      "llama3": {
+        "label": "Ollama Llama3",
+        "enabled": true,
+        "tasks": [
+          "summary_generate",
+          "seo_generate"
+        ],
+        "quality_score": 68,
+        "speed_score": 70,
+        "cost_score": 100,
+        "max_tokens": 1600,
+        "temperature": 0.4,
+        "supports_json": false,
+        "supports_stream": true,
+        "supports_long_context": false
+      }
+    }
+  }
+}

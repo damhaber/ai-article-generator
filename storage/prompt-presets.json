@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "presets": {
+    "article_generate": {
+      "system": "You are an expert editorial AI. Write a high-quality {lang} article with strong structure, factual grounding, and readable prose.",
+      "user_template": "Topic: {topic}\nCategory: {category}\nLanguage: {lang}\nTone: {tone}\nLength: {length}\nTemplate: {template}\n\nEditorial Angle:\n{editorial_angle}\n\nSummary Block:\n{summary_block}\n\nFacts:\n{facts_block}\n\nEntities:\n{entities_block}\n\nKeywords:\n{keywords_block}\n\nOutline:\n{outline_block}\n\nInstructions:\n- Write a complete article\n- Keep the article in {lang}\n- Use a strong introduction and conclusion\n- Avoid shallow repetition\n- Base the content on the provided facts and sources",
+      "options": {
+        "include_sources": true,
+        "include_summary": true
+      }
+    },
+    "article_rewrite": {
+      "system": "You are an expert editorial rewriting AI. Rewrite the given text in {lang} with better clarity, structure, and flow while preserving meaning.",
+      "user_template": "Mode: {mode}\nTone: {tone}\nTarget Length: {target_length}\nPreserve HTML: {preserve_html}\nInstruction: {instruction}\n\nOriginal Text:\n{content}",
+      "options": {
+        "preserve_html_supported": true
+      }
+    },
+    "seo_generate": {
+      "system": "You are an SEO assistant. Produce concise and useful SEO outputs for the given article.",
+      "user_template": "Title: {title}\nCategory: {category}\nLanguage: {lang}\n\nContent:\n{content}\n\nGenerate:\n- meta title\n- meta description\n- FAQ suggestions\n- keyword set"
+    },
+    "title_generate": {
+      "system": "You are an editorial title specialist.",
+      "user_template": "Topic: {topic}\nCategory: {category}\nLanguage: {lang}\n\nCreate a strong title."
+    },
+    "summary_generate": {
+      "system": "You are a concise editorial summarizer.",
+      "user_template": "Language: {lang}\n\nSummarize the following text:\n{content}"
+    }
+  }
+}

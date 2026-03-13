@@ -1,0 +1,643 @@
+{
+    "version": "1.0.0",
+    "article": {
+        "default_lang": "tr",
+        "default_tone": "analytical",
+        "default_length": "long",
+        "default_template": "news_analysis",
+        "auto_rewrite": true,
+        "auto_seo": true
+    },
+    "news": {
+        "cache_ttl_seconds": 1800,
+        "max_items_per_source": 10
+    },
+    "routing": {
+        "default_quality_profile": "balanced"
+    },
+    "quality": {
+        "threshold": 70
+    },
+    "schema": {
+        "version": "2.0.0",
+        "compatible_with": [
+            "1.x",
+            "2.x"
+        ],
+        "data_class": "SETTINGS",
+        "migrated_from": "1.x"
+    },
+    "llm": {
+        "enabled": true,
+        "providers": {
+            "local": {
+                "id": "local",
+                "name": "Local LLM",
+                "enabled": true,
+                "transport": "openai_compat",
+                "base_url": "http://127.0.0.1:1234/v1",
+                "api_key": "",
+                "priority": 10,
+                "timeout": 60,
+                "tags": [
+                    "local",
+                    "free"
+                ],
+                "health": {
+                    "status": "unknown",
+                    "last_test_at": "",
+                    "last_success_at": "",
+                    "last_error_class": "",
+                    "last_error_message": "",
+                    "last_latency_ms": 0,
+                    "consecutive_failures": 0,
+                    "disabled_until": ""
+                },
+                "headers": [],
+                "meta": {
+                    "source": "default"
+                }
+            },
+            "openrouter": {
+                "id": "openrouter",
+                "name": "OpenRouter",
+                "enabled": false,
+                "transport": "openai_compat",
+                "base_url": "https://openrouter.ai/api/v1",
+                "api_key": "",
+                "priority": 20,
+                "timeout": 60,
+                "tags": [
+                    "free",
+                    "cheap",
+                    "multi"
+                ],
+                "health": {
+                    "status": "unknown",
+                    "last_test_at": "",
+                    "last_success_at": "",
+                    "last_error_class": "",
+                    "last_error_message": "",
+                    "last_latency_ms": 0,
+                    "consecutive_failures": 0,
+                    "disabled_until": ""
+                },
+                "headers": [],
+                "meta": {
+                    "source": "default"
+                }
+            },
+            "deepseek": {
+                "id": "deepseek",
+                "name": "DeepSeek",
+                "enabled": false,
+                "transport": "openai_compat",
+                "base_url": "https://api.deepseek.com",
+                "api_key": "",
+                "priority": 30,
+                "timeout": 60,
+                "tags": [
+                    "free",
+                    "cheap",
+                    "reasoning"
+                ],
+                "health": {
+                    "status": "unknown",
+                    "last_test_at": "",
+                    "last_success_at": "",
+                    "last_error_class": "",
+                    "last_error_message": "",
+                    "last_latency_ms": 0,
+                    "consecutive_failures": 0,
+                    "disabled_until": ""
+                },
+                "headers": [],
+                "meta": {
+                    "source": "default"
+                }
+            },
+            "openai": {
+                "id": "openai",
+                "name": "OpenAI",
+                "enabled": true,
+                "transport": "openai_compat",
+                "base_url": "https://api.openai.com/v1",
+                "api_key": "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",
+                "priority": 40,
+                "timeout": 60,
+                "tags": [
+                    "premium"
+                ],
+                "health": {
+                    "status": "unknown",
+                    "last_test_at": "",
+                    "last_success_at": "",
+                    "last_error_class": "",
+                    "last_error_message": "",
+                    "last_latency_ms": 0,
+                    "consecutive_failures": 0,
+                    "disabled_until": ""
+                },
+                "headers": [],
+                "meta": {
+                    "source": "default"
+                }
+            },
+            "custom": {
+                "id": "custom",
+                "name": "Custom Provider",
+                "enabled": false,
+                "transport": "openai_compat",
+                "base_url": "",
+                "api_key": "",
+                "priority": 50,
+                "timeout": 60,
+                "tags": [
+                    "custom"
+                ],
+                "health": {
+                    "status": "unknown",
+                    "last_test_at": "",
+                    "last_success_at": "",
+                    "last_error_class": "",
+                    "last_error_message": "",
+                    "last_latency_ms": 0,
+                    "consecutive_failures": 0,
+                    "disabled_until": ""
+                },
+                "headers": [],
+                "meta": {
+                    "source": "default"
+                }
+            }
+        },
+        "models": {
+            "local-default": {
+                "id": "local-default",
+                "provider": "local",
+                "name": "Local Default Model",
+                "model": "llama3",
+                "enabled": true,
+                "context_window": 8192,
+                "price_input": 0,
+                "price_output": 0,
+                "tier": "free",
+                "quality": "medium",
+                "speed": "medium",
+                "json_support": true,
+                "vision_support": false,
+                "meta": {
+                    "source": "default"
+                }
+            },
+            "deepseek-chat": {
+                "id": "deepseek-chat",
+                "provider": "deepseek",
+                "name": "DeepSeek Chat",
+                "model": "deepseek-chat",
+                "enabled": true,
+                "context_window": 64000,
+                "price_input": 0,
+                "price_output": 0,
+                "tier": "cheap",
+                "quality": "medium",
+                "speed": "fast",
+                "json_support": true,
+                "vision_support": false,
+                "meta": {
+                    "source": "default"
+                }
+            },
+            "openrouter-auto": {
+                "id": "openrouter-auto",
+                "provider": "openrouter",
+                "name": "OpenRouter Auto",
+                "model": "openrouter/auto",
+                "enabled": true,
+                "context_window": 64000,
+                "price_input": 0,
+                "price_output": 0,
+                "tier": "free",
+                "quality": "medium",
+                "speed": "medium",
+                "json_support": true,
+                "vision_support": false,
+                "meta": {
+                    "source": "default"
+                }
+            },
+            "gpt-4o-mini": {
+                "id": "gpt-4o-mini",
+                "provider": "openai",
+                "name": "GPT-4o Mini",
+                "model": "gpt-4o-mini",
+                "enabled": true,
+                "context_window": 128000,
+                "price_input": 0,
+                "price_output": 0,
+                "tier": "balanced",
+                "quality": "high",
+                "speed": "fast",
+                "json_support": true,
+                "vision_support": true,
+                "meta": {
+                    "source": "default"
+                }
+            },
+            "custom-default": {
+                "id": "custom-default",
+                "provider": "custom",
+                "name": "Custom Default Model",
+                "model": "",
+                "enabled": true,
+                "context_window": 8192,
+                "price_input": 0,
+                "price_output": 0,
+                "tier": "custom",
+                "quality": "medium",
+                "speed": "medium",
+                "json_support": true,
+                "vision_support": false,
+                "meta": {
+                    "source": "default"
+                }
+            },
+            "openrouter-default": {
+                "id": "openrouter-default",
+                "provider": "openrouter",
+                "name": "OpenRouter Default Model",
+                "model": "openai/gpt-4o-mini",
+                "enabled": false,
+                "context_window": 8192,
+                "price_input": 0,
+                "price_output": 0,
+                "tier": "cheap",
+                "quality": "medium",
+                "speed": "medium",
+                "json_support": true,
+                "vision_support": false,
+                "meta": {
+                    "source": "legacy_engines"
+                }
+            },
+            "deepseek-default": {
+                "id": "deepseek-default",
+                "provider": "deepseek",
+                "name": "DeepSeek Default Model",
+                "model": "deepseek-chat",
+                "enabled": false,
+                "context_window": 8192,
+                "price_input": 0,
+                "price_output": 0,
+                "tier": "cheap",
+                "quality": "medium",
+                "speed": "medium",
+                "json_support": true,
+                "vision_support": false,
+                "meta": {
+                    "source": "legacy_engines"
+                }
+            },
+            "openai-default": {
+                "id": "openai-default",
+                "provider": "openai",
+                "name": "OpenAI Default Model",
+                "model": "gpt-4o-mini",
+                "enabled": false,
+                "context_window": 8192,
+                "price_input": 0,
+                "price_output": 0,
+                "tier": "premium",
+                "quality": "medium",
+                "speed": "medium",
+                "json_support": true,
+                "vision_support": false,
+                "meta": {
+                    "source": "legacy_engines"
+                }
+            }
+        },
+        "routing": {
+            "enabled": true,
+            "strategy": "score",
+            "default_preset": "free_first",
+            "primary_provider": "openai",
+            "primary_model": "gpt-4o-mini",
+            "fallback_provider": "openrouter",
+            "fallback_model": "openrouter-auto",
+            "max_attempts": 4,
+            "max_retries_per_route": 2,
+            "retry_delay_ms": 1200,
+            "circuit_breaker_enabled": true,
+            "health_aware": true,
+            "provider_order": [
+                "local",
+                "openrouter",
+                "deepseek",
+                "openai",
+                "custom"
+            ],
+            "failover_on": {
+                "timeout": true,
+                "network_error": true,
+                "provider_down": true,
+                "rate_limited": true,
+                "quota_exceeded": true,
+                "empty_output": true,
+                "invalid_json": true,
+                "auth_error": false,
+                "bad_request": false,
+                "model_not_found": true,
+                "policy_block": false
+            }
+        },
+        "presets": {
+            "free_first": {
+                "id": "free_first",
+                "label": "Free First",
+                "enabled": true,
+                "quality_weight": 2,
+                "cost_weight": 5,
+                "speed_weight": 2,
+                "health_weight": 4,
+                "provider_order": [
+                    "local",
+                    "openrouter",
+                    "deepseek",
+                    "custom",
+                    "openai"
+                ],
+                "tiers": [
+                    "free",
+                    "cheap",
+                    "balanced",
+                    "premium"
+                ]
+            },
+            "cheap": {
+                "id": "cheap",
+                "label": "Cheap",
+                "enabled": true,
+                "quality_weight": 2,
+                "cost_weight": 4,
+                "speed_weight": 2,
+                "health_weight": 3,
+                "provider_order": [
+                    "openrouter",
+                    "deepseek",
+                    "local",
+                    "custom",
+                    "openai"
+                ],
+                "tiers": [
+                    "cheap",
+                    "free",
+                    "balanced",
+                    "premium"
+                ]
+            },
+            "balanced": {
+                "id": "balanced",
+                "label": "Balanced",
+                "enabled": true,
+                "quality_weight": 4,
+                "cost_weight": 3,
+                "speed_weight": 3,
+                "health_weight": 4,
+                "provider_order": [
+                    "deepseek",
+                    "openrouter",
+                    "openai",
+                    "local",
+                    "custom"
+                ],
+                "tiers": [
+                    "balanced",
+                    "cheap",
+                    "premium",
+                    "free"
+                ]
+            },
+            "premium": {
+                "id": "premium",
+                "label": "Premium",
+                "enabled": true,
+                "quality_weight": 5,
+                "cost_weight": 1,
+                "speed_weight": 3,
+                "health_weight": 4,
+                "provider_order": [
+                    "openai",
+                    "openrouter",
+                    "deepseek",
+                    "custom",
+                    "local"
+                ],
+                "tiers": [
+                    "premium",
+                    "balanced",
+                    "cheap",
+                    "free"
+                ]
+            }
+        },
+        "health": {
+            "consecutive_failures_threshold": 3,
+            "cooldown_minutes": 10,
+            "deprioritize_unhealthy": true
+        },
+        "billing": {
+            "enabled": true,
+            "local_first_on_limit": true,
+            "max_cost_per_request": 0,
+            "limits": {
+                "daily_calls": 0,
+                "weekly_calls": 0,
+                "daily_tokens": 0,
+                "weekly_tokens": 0,
+                "daily_cost_usd": 0,
+                "weekly_cost_usd": 0
+            },
+            "pricing": {
+                "local": {
+                    "in": 0,
+                    "out": 0
+                },
+                "deepseek": {
+                    "in": 0,
+                    "out": 0
+                },
+                "openrouter": {
+                    "in": 0,
+                    "out": 0
+                },
+                "openai": {
+                    "in": 0,
+                    "out": 0
+                },
+                "custom": {
+                    "in": 0,
+                    "out": 0
+                }
+            },
+            "dashboard_days": 14
+        },
+        "defaults": {
+            "provider": "openai",
+            "model": "gpt-4o-mini",
+            "temperature": 0.7,
+            "max_tokens": 1600,
+            "timeout": 60,
+            "task_type": "article_generation",
+            "preset": "premium"
+        }
+    },
+    "engines": {
+        "default": "openai",
+        "items": {
+            "local": {
+                "enabled": true,
+                "type": "openai_compat",
+                "label": "Local (Ollama / LM Studio)",
+                "endpoint": "http://127.0.0.1:11434",
+                "api_key": "",
+                "model": "llama3",
+                "temperature": 0.7,
+                "max_tokens": 1600,
+                "timeout": 60
+            },
+            "openrouter": {
+                "enabled": false,
+                "type": "openai_compat",
+                "label": "OpenRouter",
+                "endpoint": "https://openrouter.ai/api",
+                "api_key": "",
+                "model": "openai/gpt-4o-mini",
+                "temperature": 0.7,
+                "max_tokens": 1600,
+                "timeout": 60
+            },
+            "deepseek": {
+                "enabled": false,
+                "type": "openai_compat",
+                "label": "DeepSeek",
+                "endpoint": "https://api.deepseek.com",
+                "api_key": "",
+                "model": "deepseek-chat",
+                "temperature": 0.7,
+                "max_tokens": 1600,
+                "timeout": 45
+            },
+            "openai": {
+                "enabled": false,
+                "type": "openai_compat",
+                "label": "OpenAI",
+                "endpoint": "https://api.openai.com",
+                "api_key": "",
+                "model": "gpt-4o-mini",
+                "temperature": 0.7,
+                "max_tokens": 1600,
+                "timeout": 60
+            },
+            "custom": {
+                "enabled": false,
+                "type": "openai_compat",
+                "label": "Custom Provider",
+                "endpoint": "",
+                "api_key": "",
+                "model": "",
+                "temperature": 0.7,
+                "max_tokens": 1600,
+                "timeout": 60
+            }
+        }
+    },
+    "router": {
+        "enabled": true,
+        "strategy": "score",
+        "order": [
+            "local",
+            "openrouter",
+            "deepseek",
+            "openai",
+            "custom"
+        ],
+        "max_attempts": 4,
+        "failover_on": {
+            "timeout": true,
+            "network_error": true,
+            "http_401": false,
+            "http_429": true,
+            "http_5xx": true,
+            "parse_fail": true,
+            "empty_response": true
+        }
+    },
+    "similarity": {
+        "enabled": true,
+        "threshold": 0.8,
+        "keep": 120
+    },
+    "auto_improve": {
+        "enabled": true,
+        "rewrite_on_similarity": true,
+        "rewrite_on_quality": true,
+        "max_rewrite_attempts": 2,
+        "instruction_similarity": "Aynı anlamı koru ama cümleleri tamamen değiştir. Farklı sözcükler, farklı yapı, farklı akış kullan. Kopyalama yapma. Telifsiz / sıfırdan üret. H2 başlıkları KORU, sadece içerikleri yeniden yaz.",
+        "instruction_quality": "Metni daha kapsamlı, daha faydalı ve daha iyi yapılandırılmış hale getir. Gereksiz tekrarları azalt. Somut örnekler ve kısa maddeler ekle. H2 başlıkları KORU, sadece içerikleri iyileştir.",
+        "budget": {
+            "max_calls": 40,
+            "max_total_tokens": 8000,
+            "max_cost_usd": 2.5
+        }
+    },
+    "rate_limit": {
+        "enabled": true,
+        "bypass_manage_options": true,
+        "identity_mode": "user_or_ip",
+        "buckets": {
+            "generate": {
+                "limit": 10,
+                "window": 60
+            }
+        }
+    },
+    "billing": {
+        "enabled": true,
+        "local_first_on_limit": true,
+        "limits": {
+            "daily_calls": 0,
+            "weekly_calls": 0,
+            "daily_tokens": 0,
+            "weekly_tokens": 0,
+            "daily_cost_usd": 0,
+            "weekly_cost_usd": 0
+        },
+        "pricing": {
+            "local": {
+                "in": 0,
+                "out": 0
+            },
+            "deepseek": {
+                "in": 0,
+                "out": 0
+            },
+            "openrouter": {
+                "in": 0,
+                "out": 0
+            },
+            "openai": {
+                "in": 0,
+                "out": 0
+            },
+            "custom": {
+                "in": 0,
+                "out": 0
+            }
+        },
+        "dashboard_days": 14
+    },
+    "security": {
+        "secrets_redaction": true
+    }
+}
