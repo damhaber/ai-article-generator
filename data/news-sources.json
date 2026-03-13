@@ -1,0 +1,194 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-03-09",
+  "default_category": "tech",
+  "categories": {
+    "tech": [
+      {
+        "id": "techcrunch",
+        "name": "TechCrunch",
+        "type": "rss",
+        "url": "https://techcrunch.com/feed/",
+        "lang": "en",
+        "priority": 10,
+        "active": true
+      },
+      {
+        "id": "theverge",
+        "name": "The Verge",
+        "type": "rss",
+        "url": "https://www.theverge.com/rss/index.xml",
+        "lang": "en",
+        "priority": 9,
+        "active": true
+      },
+      {
+        "id": "wired",
+        "name": "WIRED",
+        "type": "rss",
+        "url": "https://www.wired.com/feed/rss",
+        "lang": "en",
+        "priority": 8,
+        "active": true
+      },
+      {
+        "id": "ars-technica",
+        "name": "Ars Technica",
+        "type": "rss",
+        "url": "https://feeds.arstechnica.com/arstechnica/index",
+        "lang": "en",
+        "priority": 8,
+        "active": true
+      }
+    ],
+    "finance": [
+      {
+        "id": "finance-placeholder",
+        "name": "Finance Placeholder",
+        "type": "rss",
+        "url": "",
+        "lang": "en",
+        "priority": 10,
+        "active": false
+      }
+    ],
+    "science": [
+      {
+        "id": "nature",
+        "name": "Nature",
+        "type": "rss",
+        "url": "https://www.nature.com/nature.rss",
+        "lang": "en",
+        "priority": 10,
+        "active": true
+      },
+      {
+        "id": "nature-methods",
+        "name": "Nature Methods",
+        "type": "rss",
+        "url": "https://www.nature.com/nmeth.rss",
+        "lang": "en",
+        "priority": 8,
+        "active": true
+      },
+      {
+        "id": "nature-materials",
+        "name": "Nature Materials",
+        "type": "rss",
+        "url": "https://www.nature.com/nmat.rss",
+        "lang": "en",
+        "priority": 7,
+        "active": true
+      }
+    ],
+    "ai": [
+      {
+        "id": "openai-news",
+        "name": "OpenAI News",
+        "type": "rss",
+        "url": "https://openai.com/rss.xml",
+        "lang": "en",
+        "priority": 10,
+        "active": true
+      },
+      {
+        "id": "wired-ai",
+        "name": "WIRED AI",
+        "type": "rss",
+        "url": "https://www.wired.com/feed/tag/ai/latest/rss",
+        "lang": "en",
+        "priority": 8,
+        "active": true
+      },
+      {
+        "id": "ai-placeholder",
+        "name": "AI Placeholder",
+        "type": "rss",
+        "url": "",
+        "lang": "en",
+        "priority": 5,
+        "active": false
+      }
+    ],
+    "gaming": [
+      {
+        "id": "gaming-placeholder",
+        "name": "Gaming Placeholder",
+        "type": "rss",
+        "url": "",
+        "lang": "en",
+        "priority": 10,
+        "active": false
+      }
+    ],
+    "defense": [
+      {
+        "id": "defense-placeholder",
+        "name": "Defense Placeholder",
+        "type": "rss",
+        "url": "",
+        "lang": "en",
+        "priority": 10,
+        "active": false
+      }
+    ],
+    "space": [
+      {
+        "id": "nasa-news-release",
+        "name": "NASA News Releases",
+        "type": "rss",
+        "url": "https://www.nasa.gov/news-release/feed/",
+        "lang": "en",
+        "priority": 10,
+        "active": true
+      },
+      {
+        "id": "jpl-news",
+        "name": "JPL News",
+        "type": "rss",
+        "url": "https://www.jpl.nasa.gov/feeds/news",
+        "lang": "en",
+        "priority": 9,
+        "active": true
+      },
+      {
+        "id": "cneos-news",
+        "name": "NASA CNEOS News",
+        "type": "rss",
+        "url": "https://cneos.jpl.nasa.gov/feed/news.xml",
+        "lang": "en",
+        "priority": 7,
+        "active": true
+      }
+    ]
+  },
+  "wp_category_map": {
+    "teknoloji": "tech",
+    "tech": "tech",
+    "mobil": "tech",
+    "internet": "tech",
+    "startup": "tech",
+    "girisim": "tech",
+    "donanim": "tech",
+    "yazilim": "tech",
+    "finans": "finance",
+    "ekonomi": "finance",
+    "borsa": "finance",
+    "kripto": "finance",
+    "bilim": "science",
+    "arastirma": "science",
+    "kesif": "science",
+    "yapay-zeka": "ai",
+    "yapayzeka": "ai",
+    "ai": "ai",
+    "machine-learning": "ai",
+    "oyun": "gaming",
+    "gaming": "gaming",
+    "espor": "gaming",
+    "savunma": "defense",
+    "askeri": "defense",
+    "uzay": "space",
+    "space": "space",
+    "nasa": "space"
+  }
+}

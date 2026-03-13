@@ -1,0 +1,118 @@
+{
+    "category": "tech",
+    "range": "24h",
+    "limit": 10,
+    "created_at": 1773365259,
+    "items": [
+        {
+            "title": "How to watch Jensen Huang’s Nvidia GTC 2026 keynote",
+            "summary": "Nvidia kicks off its GTC conference with Huang's keynote on Monday, which can be watched in person or via livestream.",
+            "url": "https://techcrunch.com/2026/03/12/how-to-watch-jensen-huangs-nvidia-gtc-2026-keynote/",
+            "source": "TechCrunch",
+            "source_id": "techcrunch",
+            "published_at": "2026-03-12T23:25:39+00:00",
+            "timestamp": 1773357939,
+            "category": "tech",
+            "lang": "en"
+        },
+        {
+            "title": "The best Bluetooth trackers for Apple and Android phones",
+            "summary": "Some people rarely lose things. Wallets are always exactly where they’re supposed to be, keys never go missing, and remotes never slip between the couch cushions. And then there’s the rest of us — the folks who can’t…",
+            "url": "https://www.theverge.com/23769840/best-bluetooth-trackers",
+            "source": "The Verge",
+            "source_id": "theverge",
+            "published_at": "2026-03-12T22:30:35+00:00",
+            "timestamp": 1773354635,
+            "category": "tech",
+            "lang": "en"
+        },
+        {
+            "title": "Sales automation startup Rox AI hits $1.2B valuation, sources say",
+            "summary": "Rox, founded in 2024 by the former chief growth officer of New Relic, offers an AI-native alternative to CRM tools.",
+            "url": "https://techcrunch.com/2026/03/12/sales-automation-startup-rox-ai-hits-1-2b-valuation-sources-say/",
+            "source": "TechCrunch",
+            "source_id": "techcrunch",
+            "published_at": "2026-03-12T22:25:50+00:00",
+            "timestamp": 1773354350,
+            "category": "tech",
+            "lang": "en"
+        },
+        {
+            "title": "The who, what, and why of the attack that has shut down Stryker's Windows network",
+            "summary": "Company says it doesn't know how long it will take to restore its Microsoft environment.",
+            "url": "https://arstechnica.com/security/2026/03/whats-known-about-wiper-attack-on-stryker-a-major-supplier-of-lifesaving-devices/",
+            "source": "Ars Technica",
+            "source_id": "ars-technica",
+            "published_at": "2026-03-12T22:18:11+00:00",
+            "timestamp": 1773353891,
+            "category": "tech",
+            "lang": "en"
+        },
+        {
+            "title": "Google Chrome is coming to Arm-powered Linux devices later this year",
+            "summary": "You can download Chrome for Linux, and you can download Chrome for Arm devices - but if you've got a computer running Linux on Arm, not so much! Now, Google says it's finally bringing Chrome to ARM64 Linux machines in…",
+            "url": "https://www.theverge.com/tech/894095/google-chrome-for-arm-linux",
+            "source": "The Verge",
+            "source_id": "theverge",
+            "published_at": "2026-03-12T21:39:22+00:00",
+            "timestamp": 1773351562,
+            "category": "tech",
+            "lang": "en"
+        },
+        {
+            "title": "KPop Demon Hunters is getting a sequel, obviously",
+            "summary": "Get ready to get even more K-pop, demonier, and as huntery as possible. Netflix's smash-hit, Oscar-nominated animated film KPop Demon Hunters is returning for a sequel, with the fictional Korean girl group HUNTR/X…",
+            "url": "https://www.theverge.com/entertainment/894014/kpop-demon-hunters-sequel",
+            "source": "The Verge",
+            "source_id": "theverge",
+            "published_at": "2026-03-12T21:08:46+00:00",
+            "timestamp": 1773349726,
+            "category": "tech",
+            "lang": "en"
+        },
+        {
+            "title": "Live Nation director boasted of gouging ticket buyers, \"robbing them blind\"",
+            "summary": "Unsealed messages add wrinkle to trial after US agreed to settle with Live Nation.",
+            "url": "https://arstechnica.com/tech-policy/2026/03/live-nation-director-boasted-of-gouging-ticket-buyers-robbing-them-blind/",
+            "source": "Ars Technica",
+            "source_id": "ars-technica",
+            "published_at": "2026-03-12T20:47:58+00:00",
+            "timestamp": 1773348478,
+            "category": "tech",
+            "lang": "en"
+        },
+        {
+            "title": "HP has new incentive to stop blocking third-party ink in its printers",
+            "summary": "Trade group callls out HP for latest Dynamic Security firmware update.",
+            "url": "https://arstechnica.com/gadgets/2026/03/hp-has-new-incentive-to-stop-blocking-third-party-ink-in-its-printers/",
+            "source": "Ars Technica",
+            "source_id": "ars-technica",
+            "published_at": "2026-03-12T20:29:19+00:00",
+            "timestamp": 1773347359,
+            "category": "tech",
+            "lang": "en"
+        },
+        {
+            "title": "Channel Surfer lets you watch YouTube like it’s old-school cable TV",
+            "summary": "The web app lets you turn on YouTube and surf channels like you're watching cable TV in the '90s.",
+            "url": "https://techcrunch.com/2026/03/12/channel-surfer-watch-youtube-retro-cable-tv-guide/",
+            "source": "TechCrunch",
+            "source_id": "techcrunch",
+            "published_at": "2026-03-12T20:27:17+00:00",
+            "timestamp": 1773347237,
+            "category": "tech",
+            "lang": "en"
+        },
+        {
+            "title": "Why Rivian is holding the $45,000 base model R2 until ‘late 2027’",
+            "summary": "Rivian spent the last two years promoting the R2 as a $45,000 SUV. But buyers won't be able to pay that price until late next year -- if at all.",
+            "url": "https://techcrunch.com/2026/03/12/why-rivian-is-holding-the-45000-base-model-r2-until-late-2027/",
+            "source": "TechCrunch",
+            "source_id": "techcrunch",
+            "published_at": "2026-03-12T20:24:02+00:00",
+            "timestamp": 1773347042,
+            "category": "tech",
+            "lang": "en"
+        }
+    ]
+}
