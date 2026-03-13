@@ -1,5 +1,26 @@
-.ai-editor-wrap iframe{ background:#fff; }
-.card h3{ font-size:14px; font-weight:600; margin:0 0 8px 0; }
+.ai-editor-wrap iframe {
+  background: #fff;
+  width: 100%;
+  height: 650px;
+  border: none;
+  display: block;
+  overflow: auto;
+}
+
+.card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+body,
+html {
+  overflow-x: hidden;
+}
+
+/* ---------------------------------------------------------
+   Legacy / existing layout
+   --------------------------------------------------------- */
 .masal-panel-grid {
   display: grid;
   grid-template-columns: 1.6fr 0.9fr;
@@ -10,48 +31,205 @@
   box-sizing: border-box;
 }
 
-.ai-editor-wrap iframe {
-  width: 100%;
-  height: 650px;
-  border: none;
+/* ---------------------------------------------------------
+   Main AIG layout
+   --------------------------------------------------------- */
+.aig-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 0.95fr;
+  gap: 16px;
+  align-items: start;
+  max-width: 1280px;
+}
+
+.aig-col {
+  min-width: 0;
+}
+
+.aig-col .postbox {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.04);
+}
+
+.aig-col .postbox + .postbox {
+  margin-top: 16px;
+}
+
+.aig-col .postbox .inside {
   display: block;
-  overflow: auto;
+}
+
+.aig-col .postbox .hndle {
   background: #fff;
 }
 
-body, html {
-  overflow-x: hidden;
+/* ---------------------------------------------------------
+   Output blocks
+   --------------------------------------------------------- */
+.aig-output {
+  background: #fff;
+  border: 1px solid #dcdcde;
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 70px;
+  max-height: 420px;
+  overflow: auto;
+  line-height: 1.65;
+  box-sizing: border-box;
 }
 
+.aig-output h1,
+.aig-output h2,
+.aig-output h3,
+.aig-output h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  line-height: 1.35;
+}
 
-/* V4 Panel helpers */
-.aig-grid{
-  display:grid;
-  grid-template-columns: 1.35fr 0.95fr;
-  gap:16px;
-  align-items:start;
-  max-width:1200px;
+.aig-output h2 {
+  font-size: 20px;
 }
-@media (max-width: 1100px){
-  .aig-grid{ grid-template-columns: 1fr; }
+
+.aig-output h3 {
+  font-size: 16px;
+  margin-top: 18px;
 }
-.aig-col .postbox{ border-radius:14px; overflow:hidden; }
-.aig-output{
-  background:#fff;
-  border:1px solid #dcdcde;
-  border-radius:12px;
-  padding:10px;
-  min-height:70px;
-  max-height:420px;
-  overflow:auto;
+
+.aig-output p {
+  margin: 0 0 12px;
 }
-.aig-pre{
-  background:#0d1117;
-  color:#c9d1d9;
-  padding:10px;
-  border-radius:12px;
-  max-height:260px;
-  overflow:auto;
-  font-size:12px;
-  white-space:pre-wrap;
+
+.aig-output ul,
+.aig-output ol {
+  padding-left: 20px;
+  margin: 0 0 12px;
+}
+
+.aig-output li {
+  margin-bottom: 6px;
+}
+
+.aig-output a {
+  text-decoration: none;
+}
+
+.aig-output a:hover {
+  text-decoration: underline;
+}
+
+.aig-output em {
+  color: #667085;
+}
+
+/* ---------------------------------------------------------
+   Summary / result helpers
+   --------------------------------------------------------- */
+#aig-gen-summary {
+  min-height: 50px;
+}
+
+#aig-gen-summary div + div {
+  margin-top: 6px;
+}
+
+#aig-gen-output {
+  min-height: 180px;
+}
+
+#aig-fact-pack-output ul,
+#aig-sources-output ul,
+#aig-seo-output ul {
+  margin-top: 8px;
+}
+
+#aig-fact-pack-output li,
+#aig-sources-output li,
+#aig-seo-output li {
+  margin-bottom: 10px;
+}
+
+/* ---------------------------------------------------------
+   Pre / debug panels
+   --------------------------------------------------------- */
+.aig-pre {
+  background: #0d1117;
+  color: #c9d1d9;
+  padding: 10px;
+  border-radius: 12px;
+  max-height: 260px;
+  overflow: auto;
+  font-size: 12px;
+  white-space: pre-wrap;
+  box-sizing: border-box;
+  line-height: 1.55;
+}
+
+/* ---------------------------------------------------------
+   Form helpers
+   --------------------------------------------------------- */
+#aig-root input[type="text"],
+#aig-root input[type="number"],
+#aig-root input[type="password"],
+#aig-root select,
+#aig-root textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#aig-root textarea {
+  resize: vertical;
+}
+
+#aig-root label {
+  display: inline-block;
+  font-weight: 500;
+}
+
+#aig-root .button {
+  border-radius: 10px;
+}
+
+#aig-root code {
+  word-break: break-word;
+}
+
+/* ---------------------------------------------------------
+   Diagnostics
+   --------------------------------------------------------- */
+#aig-diagnostics .inside pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------------------------------------------------------
+   Media cards helper
+   --------------------------------------------------------- */
+#ai-media-results img,
+#ai-media-results video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---------------------------------------------------------
+   Responsive
+   --------------------------------------------------------- */
+@media (max-width: 1100px) {
+  .aig-grid,
+  .masal-panel-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 782px) {
+  .aig-output,
+  .aig-pre {
+    max-height: none;
+  }
+
+  #aig-root .regular-text {
+    width: 100%;
+  }
 }
