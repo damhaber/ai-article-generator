@@ -1,79 +1,186 @@
-# CODEMAP — AI Article Generator (Masal Panel)
+# CODEMAP — AI Article Generator
 
-Bu dosya “unutmama sistemi”dir: **hangi özellik nerede?** sorusunun tek cevabı.
+Bu dosya modülün teknik hafızasıdır. Amaç, “hangi dosya ne yapıyor?” sorusunu tek yerde cevaplamaktır.
 
-## 0) Giriş noktaları
-- **ai-article-generator.php**: Modül loader’ı (PATH/URL sabitleri, include zinciri)
-- **panel.php**: Admin panel UI
-- **ajax-handler.php**: AJAX uçları (panel/editor tetikler)
-- **integrations/rest-api.php**: REST uçları
+## 1. Giriş noktaları
 
-## 1) Core Katmanı
-- **core/ai-article-core.php**
-  - Konfigürasyon okuma (API anahtarları, model ayarları)
-  - Makale üretim çağrılarının “tek merkez” yönetimi
+### `ai-article-generator.php`
+Ana loader.
+- sabitleri tanımlar
+- çekirdek dosyaları include eder
+- admin script/style enqueue eder
+- LLM filter bridge bağlar
 
-- **core/ai-article-bridge.php**
-  - Dış entegrasyonlarla köprü (SEO, rewrite, sources, language)
-  - Tek tip arayüzle “hook” çağırma
+### `panel.php`
+Admin UI.
+- üretim ekranı
+- rewrite alanı
+- pexels alanı
+- legacy LLM paneli
+- usage / self-test / log görüntüleme
 
-- **core/ai-article-outline.php**
-  - Başlık/alt başlık iskeleti (outline) üretimi
-  - H2/H3 planı, akış kontrolü
+### `ajax-handler.php`
+Admin AJAX tek kapısı.
+- log tail / clear
+- pexels probe / fetch
+- pexels key save
+- pipeline generate
+- rewrite
+- templates marketplace
+- usage refresh
+- self-test
+- legacy llm load/save/test
 
-- **core/ai-article-templates.php**
-  - Şablon mantığı (haber/blog/rehber vb.)
-  - Prompt şablonları ve parametreleri
+## 2. Core üretim katmanı
 
-- **core/ai-article-queue.php**
-  - Uzun işlerin kuyruğa alınması
-  - Retry / bekleyen işler (temel)
+### `core/ai-article-core.php`
+Genel üretim ve yardımcı akışların ana merkezi.
 
-- **core/ai-article-post.php**
-  - WordPress post oluşturma/güncelleme
-  - Başlık, içerik, meta alanlar, kategori/etiket
+### `core/ai-article-pipeline.php`
+Makale üretim pipeline yöneticisi.
+- outline
+- section generation
+- seo/schema/meta
+- quality gate
+- save hazırlığı
 
-- **core/ai-article-media.php**
-  - Görsel üretim/çekme entegrasyonu (varsa)
-  - Featured image / medya ekleme işlemleri
+### `core/ai-article-outline.php`
+Outline / başlık iskeleti üretimi.
 
-- **core/ai-article-metrics.php**
-  - Token / maliyet / süre / başarı oranı metrikleri (temel)
-  - İleride “Quality Gate” buraya bağlanacak
+### `core/ai-article-quality.php`
+Deterministik kalite sinyalleri ve skor.
 
-- **core/ai-log.php**
-  - Log yazımı (dosya tabanlı)
-  - Debug / hata izleri
+### `core/ai-article-post.php`
+WordPress yazı oluşturma / güncelleme.
 
-## 2) Entegrasyonlar
-- **integrations/ai-seo-hook.php**: SEO motoru ile entegrasyon
-- **integrations/ai-rewrite-hook.php**: Rewrite motoru ile entegrasyon (opsiyonel)
-- **integrations/ai-language-hook.php**: Çok dil motoru entegrasyonu (opsiyonel)
-- **integrations/ai-sources-hook.php**: Kaynak/atıf motoru (opsiyonel)
-- **integrations/api-keys-panel.php**: API anahtar yönetimi UI
-- **integrations/rest-api.php**: REST endpoint’ler
+### `core/ai-article-context.php`
+Brand / brief / kaynak / hedef kitle bağlamı.
 
-## 3) UI
-- **ui/editor.js**: Editör içi tetikler / butonlar
-- **ui/settings.php**: UI ayar ekranı bileşenleri
-- **ui/style.css**: Panel/editor stil
+### `core/ai-article-media.php`
+Pexels medya arama, doğrulama, indirme ve ekleme yardımcıları.
 
-## 4) Yeni Dokümanlar
-- **docs/ARCHITECTURE.md**: Mimari katmanlar + genişletme noktaları
-- **docs/PIPELINE.md**: Üretim pipeline hedefi (V2 planı)
-- **docs/SECURITY.md**: Güvenlik standardı (sanitize/escape/nonce/capability)
-- **storage/feature-map.json**: Özellik → dosya eşlemesi (makine okunur)
+### `core/ai-article-templates.php`
+Şablon / prompt stratejisi yardımcıları.
 
-> Kural: Yeni özellik eklenince **CODEMAP.md** ve **storage/feature-map.json** güncellenir.
+### `core/ai-article-internal-links.php`
+WP içi ilgili içerik bulma ve internal link önerileri.
 
+### `core/ai-article-metrics.php`
+Token, süre, similarity, cost benzeri ölçüm verileri.
 
-## Pipeline Engine (V2)
-- `core/ai-article-pipeline.php` — Outline→Sections→SEO→Schema→Quality→Save akışının merkezi.
+### `core/ai-log.php`
+JSON log altyapısı.
 
+## 3. Yeni LLM omurgası
+Bu dosyalar gelecekteki ana runtime çekirdeğidir.
 
-## V2 Context / Quality / Links (since 1.3.1)
+### `core/ai-article-settings.php`
+JSON-first ayar yöneticisi.
+- `storage/settings.json` okur/yazar
+- default / merge / validation
 
-- `core/ai-article-context.php` — Context pack (brand, brief, sources) üretir ve pipeline promptlarına enjekte edilir.
-- `core/ai-article-quality.php` — Deterministic kalite skoru + sinyaller (kelime sayısı, tekrar, meta length, keyword density).
-- `core/ai-article-internal-links.php` — WP içinden ilgili yazıları bulur (internal link önerisi).
-- `core/ai-article-pipeline.php` — Artık context + quality + internal_links kullanır.
+### `core/ai-article-engines.php`
+Provider ve model envanteri.
+
+### `core/ai-article-router.php`
+Karar motoru.
+- provider seçimi
+- model seçimi
+- preset uygulama
+- candidate chain oluşturma
+- failover mantığı
+
+### `core/ai-article-gateway.php`
+Transport katmanı.
+- request formatlama
+- header ekleme
+- HTTP gönderimi
+- response normalize
+- hata sınıflandırma
+
+### `core/ai-article-usage.php`
+Kullanım ve maliyet takibi.
+
+### `core/ai-article-selftest.php`
+Sağlayıcı / bağlantı / latency testleri.
+
+## 4. Legacy katman
+
+### `core/ai-article-llm.php`
+Eski tek-provider LLM köprüsü.
+Yeni planda primary runtime olmamalı; compatibility bridge olarak kalmalıdır.
+
+### `core/ai-article-bridge.php`
+Dış entegrasyon hook köprüsü.
+
+## 5. UI ve istemci tarafı
+
+### `ui/editor.js`
+Panelin istemci mantığı.
+- buton event’leri
+- AJAX çağrıları
+- sonuç / status alanı güncellemeleri
+
+### `ui/settings.php`
+UI ayar yardımcıları.
+
+### `ui/style.css`
+Panel stilleri.
+
+## 6. Entegrasyonlar
+- `integrations/ai-language-hook.php`
+- `integrations/ai-rewrite-hook.php`
+- `integrations/ai-seo-hook.php`
+- `integrations/ai-sources-hook.php`
+- `integrations/api-keys-panel.php`
+- `integrations/rest-api.php`
+
+## 7. Kalıcı veri
+
+### `storage/settings.json`
+Tek doğru ayar kaynağı olması gereken dosya.
+Hedef ana bölümler:
+- `llm.providers`
+- `llm.models`
+- `llm.routing`
+- `llm.presets`
+- `llm.health`
+- `llm.billing`
+- `llm.defaults`
+
+### `storage/feature-map.json`
+Özellik → dosya eşleşmesi için makine okunur kayıt.
+
+## 8. Dokümantasyon
+
+### Güncel çekirdek dokümanlar
+- `README.md`
+- `CODEMAP.md`
+- `docs/ARCHITECTURE.md`
+- `docs/CODEMAP.md`
+- `docs/GATEWAY.md`
+- `docs/PIPELINE.md`
+- `docs/QUALITY.md`
+- `docs/RATE_LIMIT.md`
+- `docs/ROADMAP.md`
+- `docs/SECURITY.md`
+- `docs/TEMPLATES.md`
+
+### Yeni LLM upgrade dokümanları
+- `docs/LLM_ARCHITECTURE.md`
+- `docs/PROVIDERS.md`
+- `docs/FAILOVER.md`
+- `docs/ROUTER_ALGORITHM.md`
+- `docs/WHICH_FILE_WHAT.md`
+- `docs/IMPLEMENTATION_PLAN.md`
+
+## 9. Mimari not
+Mevcut ZIP’te aktif runtime ile hedef mimari aynı değildir.
+
+### Şu an baskın runtime
+`panel -> ajax -> ai-article-llm.php -> filter -> core/pipeline`
+
+### Hedef runtime
+`panel/ajax -> settings -> router -> gateway -> provider -> normalized response -> pipeline`
+
+Bu ayrım unutulmamalıdır.
